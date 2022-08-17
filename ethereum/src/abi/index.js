@@ -5,6 +5,54 @@
 
 import { Keccak } from "sha3"
 
+
+export function decodeAddress(B) {
+    return "0x" + `${B}`.substring(-40)
+}
+
+export function decodeBool(B) {
+    return !!(parseInt(B, 16))
+}
+
+export function decodeBytes(B, dynamicLength = false) {
+    // const k = dynamicLength
+    //     ? parseInt(B.substring(0, 64), 16)
+    //     // If for some reason the string length is not even we ignore
+    //     // the last character
+    //     : Math.floor(B.length / 2)
+    const bytes = (dynamicLength ? B.substring(64) : B).match(/.{2}/g)
+    // If for some reason string is empty, `match` will return `null`
+    return Uint8Array.from((bytes || []).map(byte => parseInt(byte, 16)))
+}
+
+export function decodeFixed(B, places, bits) {
+    const asInt = decodeInt(B, bits)
+    const decimalIdx = asInt.length - places
+    return asInt.substring(0, decimalIdx)
+        + "."
+        + asInt.substring(decimalIdx)
+}
+
+export function decodeInt(B, bits) {
+    return BigInt.asIntN(bits, `0x${B}`).toString()
+}
+
+export function decodeUfixed(B, places, bits) {
+    const asInt = decodeUint(B, bits)
+    const decimalIdx = asInt.length - places
+    return asInt.substring(0, decimalIdx)
+        + "."
+        + asInt.substring(decimalIdx)
+}
+
+export function decodeUint(B, bits) {
+    return BigInt.asUintN(bits, `0x${B}`).toString()
+}
+
+export function decodeTuple(B, Ts) {
+    const heads = B
+}
+
 /**
  * Encode an ethereum address.
  * 
